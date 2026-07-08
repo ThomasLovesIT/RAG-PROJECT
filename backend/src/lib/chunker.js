@@ -5,7 +5,7 @@
 // 30-page PDF and the vector is a mushy average of every topic in it — a
 // specific question won't match it well. Embed tiny fragments and each vector
 // is precise but carries no context. 500–800 chars is the empirical sweet
-// spot for lecture-note-style text: about one coherent idea per chunk.
+// spot for runbook/KB-style prose: about one coherent step or idea per chunk.
 //
 // WHY overlap: a hard cut at every N chars will sometimes split a sentence or
 // definition across two chunks, so neither chunk fully "contains" the answer.

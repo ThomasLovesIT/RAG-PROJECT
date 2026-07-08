@@ -1,14 +1,17 @@
-# RAG Study Assistant
+# IT Helpdesk & Incident-Response Assistant
 
-A retrieval-augmented chat assistant that answers questions from your own lecture
-notes/PDFs and cites its sources. Full spec in [.claude/CLAUDE.md](.claude/CLAUDE.md).
+A retrieval-augmented chat assistant that answers IT support questions from internal
+runbooks, KB articles, and past incident tickets — citing its sources, respecting
+document access permissions, and refusing to answer when it isn't confident.
+Full spec in [SPEC.md](SPEC.md).
 
 **Stack:** Node/Express · PostgreSQL + pgvector (Supabase) · Prisma · React (Vite) · Google Gemini (free tier)
 
 ## Architecture (Phase 1)
 
 ```
-Upload:  PDF → pdf-parse → chunk (700 chars, ~15% overlap) → Gemini embeddings → pgvector
+Ingest:  runbook/FAQ/ticket (.pdf/.md/.txt) → extract text → chunk (700 chars, ~15% overlap)
+         → Gemini embeddings → pgvector
 Query:   question → Gemini embedding → top-5 cosine similarity → Gemini answer (context-only, cited)
 ```
 
@@ -35,11 +38,13 @@ Query:   question → Gemini embedding → top-5 cosine similarity → Gemini an
    npm run dev                          # http://localhost:5173
    ```
 
-5. Open http://localhost:5173, upload a PDF, ask a question.
+5. Open http://localhost:5173, upload the docs in [sample-docs/](sample-docs/)
+   (set category/source/visibility in the sidebar first), then ask e.g.
+   *"How do I unlock a user's Active Directory account?"*
 
 ## Roadmap
 
-- [x] **Phase 1 — MVP:** upload → chunk → embed → retrieve → cited answer
-- [ ] **Phase 2:** hybrid search, re-ranking, confidence guardrail, access control
-- [ ] **Phase 3:** evaluation harness (retrieval precision, faithfulness)
-- [ ] **Phase 4:** deploy + logging
+- [x] **Phase 1 — MVP:** ingest runbooks/FAQs/tickets → chunk → embed → retrieve → cited answer
+- [ ] **Phase 2:** hybrid search (tsvector), re-ranking, confidence guardrail, retrieval-time access control (INTERNAL vs PUBLIC)
+- [ ] **Phase 3:** evaluation harness (retrieval precision@3, faithfulness)
+- [ ] **Phase 4:** deploy + per-query logging (tokens, latency, cost)

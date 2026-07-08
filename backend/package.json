@@ -1,7 +1,7 @@
 {
   "name": "rag-backend",
   "version": "1.0.0",
-  "description": "RAG Study Assistant backend — PDF ingestion, pgvector retrieval, Gemini generation",
+  "description": "IT Helpdesk Assistant backend — runbook/FAQ ingestion, pgvector retrieval, Gemini generation",
   "type": "module",
   "main": "src/index.js",
   "scripts": {

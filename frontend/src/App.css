@@ -20,6 +20,20 @@ body {
 }
 .sidebar h1 { font-size: 18px; }
 
+.upload-meta { display: flex; flex-direction: column; gap: 8px; }
+.upload-meta label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12px; color: #78716c;
+}
+.upload-meta select {
+  padding: 6px 8px;
+  border: 1px solid #d6d3d1;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  color: #1c1917;
+}
+
 .upload-btn {
   display: block;
   text-align: center;

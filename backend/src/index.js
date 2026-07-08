@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import documentsRouter from "./routes/documents.js";
+import articlesRouter from "./routes/articles.js";
 import chatRouter from "./routes/chat.js";
 
 // Fail fast at boot instead of failing confusingly on the first request.
@@ -19,7 +19,7 @@ app.use(cors()); // dev convenience — the Vite proxy makes this mostly moot
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
-app.use("/api/documents", documentsRouter);
+app.use("/api/articles", articlesRouter);
 app.use("/api/chat", chatRouter);
 
 const PORT = process.env.PORT ?? 3001;

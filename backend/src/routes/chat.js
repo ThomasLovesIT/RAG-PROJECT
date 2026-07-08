@@ -40,15 +40,19 @@ router.post("/", async (req, res) => {
     //    similarity where higher = better.
     //    ORDER BY embedding <=> query scans/indexes by distance ascending,
     //    i.e. most similar first.
+    //    Phase 2 adds `AND a."visibility" = ...` here — access control lives
+    //    in this WHERE clause, BEFORE chunks ever reach the LLM.
     const rows = await prisma.$queryRaw`
       SELECT c."id",
              c."content",
              c."chunkIndex",
-             d."id"    AS "documentId",
-             d."title" AS "documentTitle",
+             a."id"       AS "articleId",
+             a."title"    AS "articleTitle",
+             a."category" AS "category",
+             a."source"   AS "source",
              1 - (c."embedding" <=> ${JSON.stringify(queryVector)}::vector) AS "similarity"
       FROM "Chunk" c
-      JOIN "Document" d ON d."id" = c."documentId"
+      JOIN "KBArticle" a ON a."id" = c."articleId"
       WHERE c."embedding" IS NOT NULL
       ORDER BY c."embedding" <=> ${JSON.stringify(queryVector)}::vector
       LIMIT ${TOP_K}
@@ -56,7 +60,7 @@ router.post("/", async (req, res) => {
 
     if (rows.length === 0) {
       return res.json({
-        answer: "I don't have any documents to search yet. Upload a PDF first.",
+        answer: "The knowledge base is empty. Upload a runbook, FAQ, or ticket writeup first.",
         sources: [],
       });
     }
@@ -71,8 +75,10 @@ router.post("/", async (req, res) => {
       answer,
       sources: rows.map((r, i) => ({
         ref: i + 1, // matches the [n] citations in the answer text
-        documentId: r.documentId,
-        documentTitle: r.documentTitle,
+        articleId: r.articleId,
+        articleTitle: r.articleTitle,
+        category: r.category,
+        source: r.source,
         chunkIndex: r.chunkIndex,
         similarity: Number(r.similarity.toFixed(4)),
         // Preview only — the full chunk is often 700 chars of context the

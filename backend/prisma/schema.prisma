@@ -23,23 +23,28 @@ datasource db {
   // "drift" on every migrate and demands a destructive reset.
 }
 
-model Document {
+model KBArticle {
   id         String     @id @default(cuid())
   title      String
-  // ownerId/visibility are unused in Phase 1 but in the schema from day one.
-  // WHY: adding access control later (Phase 2) should be a WHERE clause, not a
-  // migration + backfill. Retrieval-time filtering is this project's headline
-  // security feature, so the data model supports it from the start.
-  ownerId    String     @default("demo-user")
-  visibility Visibility @default(PRIVATE)
+  // e.g. "Network", "Hardware", "Account Access", "Software". A plain string
+  // (not an enum) because helpdesk categories change often — adding one
+  // shouldn't require a migration.
+  category   String
+  source     Source     @default(RUNBOOK)
+  // visibility/ownerId are captured at upload but not yet enforced in Phase 1.
+  // WHY they exist from day one: retrieval-time access control (Phase 2) is
+  // this project's headline security feature, and adding it later should be a
+  // WHERE clause on the search query — not a migration + backfill.
+  visibility Visibility @default(INTERNAL)
+  ownerId    String     @default("it-staff")
   createdAt  DateTime   @default(now())
   chunks     Chunk[]
 }
 
 model Chunk {
-  id         String   @id @default(cuid())
-  documentId String
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  id         String    @id @default(cuid())
+  articleId  String
+  article    KBArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
   content    String
   // Prisma has no native vector type, so we declare it "Unsupported". Prisma
   // will create the column in migrations but won't let us read/write it via
@@ -51,11 +56,18 @@ model Chunk {
   embedding  Unsupported("vector(1536)")?
   chunkIndex Int
 
-  @@index([documentId])
+  @@index([articleId])
+}
+
+// Where a KB article came from. Matters for retrieval UX (agents trust a
+// runbook more than a past ticket) and for Phase 3 eval slicing.
+enum Source {
+  RUNBOOK
+  FAQ
+  PAST_TICKET
 }
 
 enum Visibility {
-  PRIVATE
-  TEAM
-  PUBLIC
+  INTERNAL // only IT staff can retrieve (security runbooks, escalation docs)
+  PUBLIC   // any employee can retrieve (general FAQs)
 }

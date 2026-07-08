@@ -86,16 +86,17 @@ export async function generateAnswer(question, chunks) {
   const ai = getClient();
 
   // Number each chunk so the model can cite [1], [2]... and we can map those
-  // citations back to real documents in the UI.
+  // citations back to real KB articles in the UI.
   const context = chunks
-    .map((c, i) => `[${i + 1}] (from "${c.documentTitle}")\n${c.content}`)
+    .map((c, i) => `[${i + 1}] (from "${c.articleTitle}", ${c.source ?? "KB"}, category: ${c.category ?? "General"})\n${c.content}`)
     .join("\n\n---\n\n");
 
-  const prompt = `You are a study assistant. Answer the question using ONLY the context below.
+  const prompt = `You are an IT helpdesk assistant. Answer the support question using ONLY the knowledge-base context below.
 
 Rules:
-- If the context does not contain enough information to answer, reply exactly: "I don't have enough information in the uploaded documents to answer that."
-- Cite sources inline using the bracketed numbers, e.g. "Heaps are built in O(n) [2]."
+- If the context does not contain enough information to answer, reply exactly: "I don't have enough information in the knowledge base to answer that — please escalate to a human agent."
+- Cite sources inline using the bracketed numbers, e.g. "Unlock the account with Unlock-ADAccount [2]."
+- Give steps in the order the source gives them; do not invent extra troubleshooting steps.
 - Do not use any knowledge outside the provided context.
 
 Context:

@@ -1,32 +1,40 @@
 import { useEffect, useRef, useState } from "react";
 
-// Phase 1 UI: a document sidebar (upload/list/delete) + a chat pane that
-// shows the model's answer AND the retrieved source chunks with their
-// similarity scores. Showing sources isn't decoration — it's the whole
-// trust story of RAG: every answer points at the exact text it came from.
+// Phase 1 UI: a knowledge-base sidebar (upload/list/delete articles) + a
+// helpdesk chat pane that shows the model's answer AND the retrieved source
+// chunks with their similarity scores. Showing sources isn't decoration —
+// it's the whole trust story of RAG: every answer points at the exact
+// runbook/FAQ text it came from.
+
+const CATEGORIES = ["General", "Network", "Hardware", "Account Access", "Software"];
 
 export default function App() {
-  const [docs, setDocs] = useState([]);
+  const [articles, setArticles] = useState([]);
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
+  // Metadata attached to the NEXT upload. Captured now (Phase 1) so that
+  // Phase 2's retrieval-time access control has real data to filter on.
+  const [category, setCategory] = useState("General");
+  const [source, setSource] = useState("RUNBOOK");
+  const [visibility, setVisibility] = useState("INTERNAL");
   const fileInputRef = useRef(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    loadDocs();
+    loadArticles();
   }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  async function loadDocs() {
+  async function loadArticles() {
     try {
-      const res = await fetch("/api/documents");
-      setDocs(await res.json());
+      const res = await fetch("/api/articles");
+      setArticles(await res.json());
     } catch {
       setError("Backend unreachable — is it running on :3001?");
     }
@@ -40,10 +48,13 @@ export default function App() {
     try {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch("/api/documents", { method: "POST", body: form });
+      form.append("category", category);
+      form.append("source", source);
+      form.append("visibility", visibility);
+      const res = await fetch("/api/articles", { method: "POST", body: form });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
-      await loadDocs();
+      await loadArticles();
     } catch (err) {
       setError(`Upload failed: ${err.message}`);
     } finally {
@@ -53,8 +64,8 @@ export default function App() {
   }
 
   async function handleDelete(id) {
-    await fetch(`/api/documents/${id}`, { method: "DELETE" });
-    await loadDocs();
+    await fetch(`/api/articles/${id}`, { method: "DELETE" });
+    await loadArticles();
   }
 
   async function handleAsk(e) {
@@ -84,31 +95,61 @@ export default function App() {
   return (
     <div className="app">
       <aside className="sidebar">
-        <h1>📚 RAG Study Assistant</h1>
+        <h1>🛠️ IT Helpdesk Assistant</h1>
+
+        <div className="upload-meta">
+          <label>
+            Category
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              {CATEGORIES.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Source type
+            <select value={source} onChange={(e) => setSource(e.target.value)}>
+              <option value="RUNBOOK">Runbook</option>
+              <option value="FAQ">FAQ</option>
+              <option value="PAST_TICKET">Past ticket</option>
+            </select>
+          </label>
+          <label>
+            Visibility
+            <select value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+              <option value="INTERNAL">Internal (IT staff only)</option>
+              <option value="PUBLIC">Public (all employees)</option>
+            </select>
+          </label>
+        </div>
+
         <label className={`upload-btn ${uploading ? "disabled" : ""}`}>
-          {uploading ? "Ingesting…" : "+ Upload PDF"}
+          {uploading ? "Ingesting…" : "+ Upload doc (.pdf / .md / .txt)"}
           <input
             ref={fileInputRef}
             type="file"
-            accept="application/pdf"
+            accept=".pdf,.md,.markdown,.txt,application/pdf,text/markdown,text/plain"
             onChange={handleUpload}
             disabled={uploading}
             hidden
           />
         </label>
+
         <ul className="doc-list">
-          {docs.map((d) => (
-            <li key={d.id}>
+          {articles.map((a) => (
+            <li key={a.id}>
               <div>
-                <span className="doc-title">{d.title}</span>
-                <span className="doc-meta">{d.chunkCount} chunks</span>
+                <span className="doc-title">{a.title}</span>
+                <span className="doc-meta">
+                  {a.source} · {a.category} · {a.visibility} · {a.chunkCount} chunks
+                </span>
               </div>
-              <button className="delete" onClick={() => handleDelete(d.id)} title="Delete">
+              <button className="delete" onClick={() => handleDelete(a.id)} title="Delete">
                 ×
               </button>
             </li>
           ))}
-          {docs.length === 0 && <li className="empty">No documents yet</li>}
+          {articles.length === 0 && <li className="empty">Knowledge base is empty</li>}
         </ul>
         {error && <div className="error">{error}</div>}
       </aside>
@@ -116,7 +157,9 @@ export default function App() {
       <main className="chat">
         <div className="messages">
           {messages.length === 0 && (
-            <div className="placeholder">Upload lecture notes, then ask a question about them.</div>
+            <div className="placeholder">
+              Upload runbooks, FAQs, or ticket writeups — then ask a support question.
+            </div>
           )}
           {messages.map((m, i) => (
             <div key={i} className={`message ${m.role}`}>
@@ -127,8 +170,10 @@ export default function App() {
                   {m.sources.map((s) => (
                     <div key={s.ref} className="source">
                       <div className="source-head">
-                        [{s.ref}] {s.documentTitle}{" "}
-                        <span className="score">similarity {s.similarity}</span>
+                        [{s.ref}] {s.articleTitle}{" "}
+                        <span className="score">
+                          {s.source} · {s.category} · similarity {s.similarity}
+                        </span>
                       </div>
                       <div className="source-excerpt">{s.excerpt}</div>
                     </div>
@@ -145,7 +190,7 @@ export default function App() {
           <input
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask a question about your documents…"
+            placeholder="Describe the IT issue, e.g. “user's AD account is locked”…"
             disabled={busy}
           />
           <button type="submit" disabled={busy || !question.trim()}>
