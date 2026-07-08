@@ -1,0 +1,25 @@
+{
+  "name": "rag-backend",
+  "version": "1.0.0",
+  "description": "RAG Study Assistant backend — PDF ingestion, pgvector retrieval, Gemini generation",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@google/genai": "^1.9.0",
+    "@prisma/client": "^6.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "multer": "^2.0.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.11.0"
+  }
+}

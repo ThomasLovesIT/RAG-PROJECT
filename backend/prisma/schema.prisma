@@ -1,0 +1,59 @@
+// WHY Prisma at all: we get typed CRUD for the boring parts (documents, chunks)
+// and migrations, while still being able to drop to raw SQL for the one thing
+// Prisma can't type: pgvector similarity queries.
+
+generator client {
+  provider        = "prisma-client-js"
+  // postgresqlExtensions lets us declare `extensions = [vector]` below, so the
+  // migration itself runs CREATE EXTENSION — no manual SQL step in Supabase.
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  // Runtime traffic goes through Supabase's connection pooler (port 6543).
+  // WHY: serverless/long-running apps can exhaust Postgres's direct connection
+  // limit; the pooler multiplexes many app connections onto few DB connections.
+  url        = env("DATABASE_URL")
+  // Migrations need a DIRECT connection (port 5432) because they use advisory
+  // locks and DDL that poolers in transaction mode don't support.
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
+}
+
+model Document {
+  id         String     @id @default(cuid())
+  title      String
+  // ownerId/visibility are unused in Phase 1 but in the schema from day one.
+  // WHY: adding access control later (Phase 2) should be a WHERE clause, not a
+  // migration + backfill. Retrieval-time filtering is this project's headline
+  // security feature, so the data model supports it from the start.
+  ownerId    String     @default("demo-user")
+  visibility Visibility @default(PRIVATE)
+  createdAt  DateTime   @default(now())
+  chunks     Chunk[]
+}
+
+model Chunk {
+  id         String   @id @default(cuid())
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  content    String
+  // Prisma has no native vector type, so we declare it "Unsupported". Prisma
+  // will create the column in migrations but won't let us read/write it via
+  // the typed client — all embedding reads/writes go through raw SQL.
+  // 1536 dims: gemini-embedding-001 natively outputs 3072, but supports
+  // Matryoshka truncation to smaller sizes. We ask for 1536 because
+  // (a) it matches the spec, and (b) pgvector's HNSW/IVFFlat indexes cap at
+  // 2000 dims — a 3072-dim column could never be indexed for fast search.
+  embedding  Unsupported("vector(1536)")?
+  chunkIndex Int
+
+  @@index([documentId])
+}
+
+enum Visibility {
+  PRIVATE
+  TEAM
+  PUBLIC
+}
