@@ -3,10 +3,7 @@
 // Prisma can't type: pgvector similarity queries.
 
 generator client {
-  provider        = "prisma-client-js"
-  // postgresqlExtensions lets us declare `extensions = [vector]` below, so the
-  // migration itself runs CREATE EXTENSION — no manual SQL step in Supabase.
-  previewFeatures = ["postgresqlExtensions"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -17,8 +14,13 @@ datasource db {
   url        = env("DATABASE_URL")
   // Migrations need a DIRECT connection (port 5432) because they use advisory
   // locks and DDL that poolers in transaction mode don't support.
-  directUrl  = env("DIRECT_URL")
-  extensions = [vector]
+  directUrl = env("DIRECT_URL")
+  // NOTE: pgvector is enabled by a raw `CREATE EXTENSION IF NOT EXISTS vector;`
+  // at the top of the init migration — NOT via Prisma's postgresqlExtensions
+  // feature. WHY: that feature makes Prisma manage the database's whole
+  // extension list, and Supabase pre-installs several of its own (pgcrypto,
+  // uuid-ossp, supabase_vault, pg_stat_statements). Prisma sees those as
+  // "drift" on every migrate and demands a destructive reset.
 }
 
 model Document {
