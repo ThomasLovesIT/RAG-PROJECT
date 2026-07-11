@@ -20,6 +20,29 @@ body {
 }
 .sidebar h1 { font-size: 18px; }
 
+.role-selector {
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.role-selector label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12px; color: #78716c;
+}
+.role-selector select {
+  padding: 6px 8px;
+  border: 1px solid #d6d3d1;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  color: #1c1917;
+}
+.role-note { font-size: 11px; color: #a8a29e; }
+
 .upload-meta { display: flex; flex-direction: column; gap: 8px; }
 .upload-meta label {
   display: flex; flex-direction: column; gap: 4px;

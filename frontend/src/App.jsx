@@ -17,6 +17,7 @@ export default function App() {
   const [error, setError] = useState(null);
   // Metadata attached to the NEXT upload. Captured now (Phase 1) so that
   // Phase 2's retrieval-time access control has real data to filter on.
+  const [role, setRole] = useState("EMPLOYEE");
   const [category, setCategory] = useState("General");
   const [source, setSource] = useState("RUNBOOK");
   const [visibility, setVisibility] = useState("INTERNAL");
@@ -80,7 +81,7 @@ export default function App() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q }),
+        body: JSON.stringify({ question: q, role }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error);
@@ -96,6 +97,17 @@ export default function App() {
     <div className="app">
       <aside className="sidebar">
         <h1>🛠️ IT Helpdesk Assistant</h1>
+
+        <div className="role-selector">
+          <label>
+            Simulated role
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="EMPLOYEE">Employee (PUBLIC docs only)</option>
+              <option value="IT_STAFF">IT Staff (all docs)</option>
+            </select>
+          </label>
+          <span className="role-note">Production: role comes from auth</span>
+        </div>
 
         <div className="upload-meta">
           <label>
