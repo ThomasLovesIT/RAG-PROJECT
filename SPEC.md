@@ -72,22 +72,22 @@ LIMIT 20;
 - [x] Basic React chat UI (helpdesk-style) with source citations
 
 ### Phase 2 — Make it good (week 2)
-- [ ] **Hybrid search**: combine vector similarity + Postgres full-text search (helps with exact error codes, ticket numbers, product names — vector search alone often misses these)
-- [ ] **Re-ranking**: take top-20 from hybrid search, re-rank with a cross-encoder, keep top-3
-- [ ] **Confidence guardrail**: if best similarity score < threshold (e.g. 0.75), respond "I don't have enough information — escalate to a human agent" instead of guessing
-- [ ] **Role-based access control**: filter retrieved chunks by `visibility` (INTERNAL vs PUBLIC) + `ownerId` *before* they ever reach the LLM — mirrors a real requirement (security runbooks shouldn't be answerable to a general employee query); the standout differentiator
+- [x] **Hybrid search**: vector similarity + Postgres full-text search (`tsvector`), fused with Reciprocal Rank Fusion — see [backend/src/lib/retrieval.js](backend/src/lib/retrieval.js). Helps with exact error codes, ticket numbers, product names that pure vector search blurs.
+- [x] **Re-ranking**: take top-20 per search → RRF shortlist → re-rank the shortlist to top-3. Implemented as a **Gemini LLM re-ranker** rather than Cohere/a local cross-encoder, so the project needs no extra API key (the Phase 3 eval measures its lift). Toggle per request with `rerank:false`.
+- [x] **Confidence guardrail**: if the best *cosine* similarity < 0.75, respond "escalate to a human agent" instead of guessing (RRF scores aren't comparable across queries; cosine is).
+- [x] **Role-based access control**: filter retrieved chunks by `visibility` (INTERNAL vs PUBLIC) inside the search SQL — *before* they ever reach the LLM. The standout differentiator.
 
 ### Phase 3 — Prove it works (week 2–3)
-- [ ] Build a test set: 25–30 realistic IT support questions with known correct source articles
-- [ ] Script that runs each question through the pipeline and measures:
-  - **Retrieval precision** — was the correct runbook/article in the top-3 retrieved?
-  - **Faithfulness** — does the answer only use retrieved context? (checked with a second LLM call)
-- [ ] Run the eval *before and after* adding re-ranking, record the difference — headline metric
+- [x] Test set of realistic IT support questions with known correct source articles — [backend/eval/questions.json](backend/eval/questions.json) (24 Qs; small corpus of 4 docs, so fewer than the 25–30 target but 6 per source).
+- [x] Script that runs each question through the *real* pipeline and measures — [backend/eval/run-eval.js](backend/eval/run-eval.js):
+  - **Retrieval precision@3** — was the correct source article in the top-3 retrieved?
+  - **Faithfulness** — does the answer only use retrieved context? (second Gemini call as judge)
+- [x] Runs the eval *before and after* re-ranking and records the difference → [backend/eval/results.json](backend/eval/results.json).
 
 ### Phase 4 — Ship it (final days)
-- [ ] Deploy backend + frontend
-- [ ] Basic per-query logging: tokens used, latency, cost estimate
-- [ ] README with architecture diagram and eval results
+- [~] Deploy backend + frontend — steps documented in the README; not yet deployed.
+- [x] Per-query logging: tokens used, latency, cost estimate (logged server-side + returned in each `/api/chat` response's `meta`).
+- [x] README with architecture diagram and eval instructions/results.
 
 ---
 

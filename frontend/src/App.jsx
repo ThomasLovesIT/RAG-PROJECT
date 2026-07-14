@@ -83,9 +83,17 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q, role }),
       });
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.error);
-      setMessages((m) => [...m, { role: "assistant", text: body.answer, sources: body.sources }]);
+      // Parse defensively: a rate-limited or restarted backend can return an
+      // empty/non-JSON body, and res.json() would otherwise throw the cryptic
+      // "Unexpected end of JSON input".
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body.error || `Request failed (${res.status}). Please try again.`);
+      }
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", text: body.answer, sources: body.sources, meta: body.meta },
+      ]);
     } catch (err) {
       setMessages((m) => [...m, { role: "assistant", text: `Error: ${err.message}`, sources: [] }]);
     } finally {
@@ -176,6 +184,12 @@ export default function App() {
           {messages.map((m, i) => (
             <div key={i} className={`message ${m.role}`}>
               <div className="bubble">{m.text}</div>
+              {m.meta && (
+                <div className="meta">
+                  {m.meta.rerank ? "re-ranked" : "no re-rank"} · top sim {m.meta.topScore} ·{" "}
+                  {m.meta.tokens} tok · ${m.meta.costUsd} · {m.meta.latencyMs}ms
+                </div>
+              )}
               {m.sources?.length > 0 && (
                 <details className="sources">
                   <summary>Sources ({m.sources.length})</summary>

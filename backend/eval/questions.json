@@ -1,0 +1,29 @@
+[
+  { "question": "How do I unlock a user's Active Directory account after too many failed logins?", "expectedSource": "AD-Account-Lockout-Runbook", "role": "IT_STAFF", "mustContain": ["Unlock-ADAccount", "Active Directory Users and Computers"] },
+  { "question": "What PowerShell command shows whether an account is locked out?", "expectedSource": "AD-Account-Lockout-Runbook", "role": "IT_STAFF", "mustContain": ["Get-ADUser"] },
+  { "question": "After I unlock an account the badPwdCount keeps climbing, what does that mean?", "expectedSource": "AD-Account-Lockout-Runbook", "role": "IT_STAFF", "mustContain": ["stale", "retry"] },
+  { "question": "How many failed logins trigger a lockout and how long does it last?", "expectedSource": "AD-Account-Lockout-Runbook", "role": "IT_STAFF", "mustContain": ["5", "30"] },
+  { "question": "Account is locked again minutes after I unlock it — how do I find the source?", "expectedSource": "AD-Account-Lockout-Runbook", "role": "IT_STAFF", "mustContain": [] },
+  { "question": "user says password is correct but still gets incorrect password error", "expectedSource": "AD-Account-Lockout-Runbook", "role": "IT_STAFF", "mustContain": [] },
+
+  { "question": "A user's VPN keeps disconnecting every 10 minutes, what should I check first?", "expectedSource": "VPN-Troubleshooting-FAQ", "role": "EMPLOYEE", "mustContain": ["idle timeout", "MTU"] },
+  { "question": "What MTU value should I set to fix VPN tunnel stalls?", "expectedSource": "VPN-Troubleshooting-FAQ", "role": "EMPLOYEE", "mustContain": ["1400"] },
+  { "question": "VPN connects but I can't reach internal sites", "expectedSource": "VPN-Troubleshooting-FAQ", "role": "EMPLOYEE", "mustContain": ["DNS", "flushdns"] },
+  { "question": "How do I test for packet fragmentation on the VPN?", "expectedSource": "VPN-Troubleshooting-FAQ", "role": "EMPLOYEE", "mustContain": ["ping"] },
+  { "question": "Why does the VPN drop when I walk around the office with my laptop?", "expectedSource": "VPN-Troubleshooting-FAQ", "role": "EMPLOYEE", "mustContain": ["roaming", "Wi-Fi"] },
+  { "question": "netsh command to change VPN adapter MTU persistently", "expectedSource": "VPN-Troubleshooting-FAQ", "role": "EMPLOYEE", "mustContain": ["netsh", "1400"] },
+
+  { "question": "What's the escalation path for a P1 outage ticket?", "expectedSource": "Incident-Response-Runbook", "role": "IT_STAFF", "mustContain": ["on-call", "escalation"] },
+  { "question": "How quickly must the on-call engineer acknowledge a P1 page?", "expectedSource": "Incident-Response-Runbook", "role": "IT_STAFF", "mustContain": ["15"] },
+  { "question": "What severity is a single user with a locked account?", "expectedSource": "Incident-Response-Runbook", "role": "IT_STAFF", "mustContain": ["P3"] },
+  { "question": "Who is authorized to approve emergency changes outside CAB during an incident?", "expectedSource": "Incident-Response-Runbook", "role": "IT_STAFF", "mustContain": ["Incident Manager"] },
+  { "question": "company-wide email outage severity and response target", "expectedSource": "Incident-Response-Runbook", "role": "IT_STAFF", "mustContain": ["P1"] },
+  { "question": "What happens if the primary on-call doesn't answer the page?", "expectedSource": "Incident-Response-Runbook", "role": "IT_STAFF", "mustContain": ["secondary"] },
+
+  { "question": "Outlook shows Disconnected and keeps asking for password after a password change, but webmail works", "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected", "role": "IT_STAFF", "mustContain": ["Credential Manager"] },
+  { "question": "How was ticket 4213 resolved?", "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected", "role": "IT_STAFF", "mustContain": ["Credential Manager"] },
+  { "question": "Outlook keeps retrying an old password and causing account lockouts, what's the fix?", "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected", "role": "IT_STAFF", "mustContain": ["Credential Manager"] },
+  { "question": "command to open Windows Credential Manager", "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected", "role": "IT_STAFF", "mustContain": ["keymgr"] },
+  { "question": "Which cached credential entries did Outlook hold onto after the password change?", "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected", "role": "IT_STAFF", "mustContain": ["ADAL"] },
+  { "question": "OWA works but desktop Outlook won't connect after resetting my password", "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected", "role": "IT_STAFF", "mustContain": [] }
+]

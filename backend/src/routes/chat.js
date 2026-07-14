@@ -1,31 +1,40 @@
-// Query pipeline: question → embed → vector search → LLM answer with citations.
+// Query pipeline: question → hybrid retrieve → (re-rank) → guardrail → cited answer.
 //
 // Step by step, when a query comes in:
-//   1. Embed the question with the SAME model (and dims) used for documents —
-//      vectors from different models live in different spaces and can't be
-//      compared.
-//   2. Ask Postgres for the 5 stored chunks whose vectors are closest to the
-//      question vector (cosine distance, `<=>`).
-//   3. Hand ONLY those 5 chunks to the LLM with strict "answer from context,
-//      cite sources" instructions.
-//   4. Return the answer plus the chunks themselves, so the UI can show the
+//   1. Embed the question and run HYBRID search (vector + full-text), fused with
+//      RRF — see lib/retrieval.js. Access control (INTERNAL vs PUBLIC) is applied
+//      inside that SQL, so restricted chunks never enter the candidate pool.
+//   2. Optionally LLM re-rank the shortlist down to the top-3.
+//   3. Confidence guardrail: if the best cosine similarity is too low, the KB
+//      doesn't cover this topic — escalate instead of hallucinating.
+//   4. Hand ONLY the final chunks to the LLM with strict "answer from context,
+//      cite sources" instructions, and return the chunks so the UI can show the
 //      user exactly what the answer was based on.
 
 import { Router } from "express";
-import { Prisma } from "@prisma/client";
-import { prisma } from "../lib/db.js";
-import { embedQuery, generateAnswer } from "../lib/gemini.js";
+import { retrieve } from "../lib/retrieval.js";
+import { generateAnswer } from "../lib/gemini.js";
 
 const router = Router();
 
-// WHY top-5 (not 1, not 50): too few and the answer's supporting facts might
-// be spread across chunks you didn't fetch; too many and you stuff the prompt
-// with noise the model may cite incorrectly (plus you pay for every token).
-// Phase 2 changes this to top-20 → re-rank → top-3.
-const TOP_K = 5;
+// Below this cosine similarity, even the best-matching chunk isn't really about
+// the question — retrieval is unreliable, so escalate. 0.75 is a deliberately
+// conservative bar for a helpdesk (a wrong troubleshooting step is worse than
+// "ask a human"). Tuned against real scores in the Phase 3 eval.
+const CONFIDENCE_THRESHOLD = 0.75;
 
-// POST /api/chat  { "question": "..." }
+// Re-ranking is on by default; a request can turn it off (rerank:false) so the
+// Phase 3 eval can measure the exact before/after lift.
+const DEFAULT_RERANK = true;
+
+// Rough Gemini 2.5 Flash pricing (USD per 1M tokens) for the per-query cost
+// estimate. Free tier bills $0, but showing the would-be cost is the point.
+const PRICE_IN_PER_M = 0.3;
+const PRICE_OUT_PER_M = 2.5;
+
+// POST /api/chat  { "question": "...", "role": "EMPLOYEE"|"IT_STAFF", "rerank": bool }
 router.post("/", async (req, res) => {
+  const started = Date.now();
   try {
     const question = (req.body?.question ?? "").trim();
     if (!question) {
@@ -38,95 +47,127 @@ router.post("/", async (req, res) => {
     if (!["IT_STAFF", "EMPLOYEE"].includes(role)) {
       return res.status(400).json({ error: "role must be IT_STAFF or EMPLOYEE" });
     }
+    const rerank = req.body?.rerank ?? DEFAULT_RERANK;
 
-    // IT staff can retrieve INTERNAL docs; employees see PUBLIC docs only.
-    // The filter lives in SQL so restricted content never reaches the LLM,
-    // not just hidden in the UI after retrieval.
-    const visFilter =
-      role === "IT_STAFF"
-        ? Prisma.sql``
-        : Prisma.sql`AND a."visibility" = 'PUBLIC'`;
+    // 1–2. Hybrid retrieve (+ optional re-rank). All access control happens here.
+    const { chunks, maxSimilarity, usage: rerankUsage } = await retrieve(question, {
+      role,
+      rerank,
+    });
 
-    // 1. Embed the question (RETRIEVAL_QUERY role — see gemini.js)
-    const queryVector = await embedQuery(question);
-
-    // 2. Similarity search — raw SQL because Prisma can't type vector ops.
-    //    `<=>` is pgvector's cosine DISTANCE operator (0 = identical,
-    //    2 = opposite), so `1 - distance` gives the familiar cosine
-    //    similarity where higher = better.
-    //    ORDER BY embedding <=> query scans/indexes by distance ascending,
-    //    i.e. most similar first.
-    //    visFilter adds `AND a."visibility" = 'PUBLIC'` here for EMPLOYEE role —
-    //    access control lives in this WHERE clause, BEFORE chunks reach the LLM.
-    const vec = JSON.stringify(queryVector);
-    const rows = await prisma.$queryRaw(Prisma.sql`
-      SELECT c."id",
-             c."content",
-             c."chunkIndex",
-             a."id"       AS "articleId",
-             a."title"    AS "articleTitle",
-             a."category" AS "category",
-             a."source"   AS "source",
-             1 - (c."embedding" <=> ${vec}::vector) AS "similarity"
-      FROM "Chunk" c
-      JOIN "KBArticle" a ON a."id" = c."articleId"
-      WHERE c."embedding" IS NOT NULL
-      ${visFilter}
-      ORDER BY c."embedding" <=> ${vec}::vector
-      LIMIT ${TOP_K}
-    `);
-
-    if (rows.length === 0) {
+    if (chunks.length === 0) {
+      logQuery({ question, role, rerank, escalated: true, started, note: "empty-kb" });
       return res.json({
-        answer: "The knowledge base is empty. Upload a runbook, FAQ, or ticket writeup first.",
+        answer:
+          "No matching documents found. The knowledge base may be empty, or nothing is visible to your role.",
         sources: [],
       });
     }
 
-    // 3. Confidence guardrail — if even the best chunk isn't similar enough,
-    //    the KB doesn't cover this topic. Better to escalate than to hallucinate.
-    //    0.75 is the threshold: below it, retrieval is unreliable.
-    const CONFIDENCE_THRESHOLD = 0.75;
-    const topScore = Number(rows[0].similarity);
-    if (topScore < CONFIDENCE_THRESHOLD) {
+    // 3. Confidence guardrail — measured on cosine similarity, not the fused
+    //    score (RRF scores aren't comparable across queries; cosine is).
+    if (maxSimilarity < CONFIDENCE_THRESHOLD) {
+      logQuery({ question, role, rerank, escalated: true, started, topScore: maxSimilarity });
       return res.json({
         answer:
           "I don't have enough information in the knowledge base to answer this confidently. Please escalate to a human IT agent.",
-        sources: rows.map((r, i) => ({
+        sources: chunks.map((r, i) => ({
           ref: i + 1,
           articleTitle: r.articleTitle,
-          similarity: Number(r.similarity.toFixed(4)),
+          similarity: round4(r.similarity),
           excerpt: r.content.slice(0, 150) + "…",
         })),
         escalated: true,
       });
     }
 
-    // 4. Generate the grounded answer
-    const answer = await generateAnswer(question, rows);
+    // 4. Generate the grounded answer.
+    const { text: answer, usage: answerUsage } = await generateAnswer(question, chunks);
 
-    // 5. Return answer + sources. Exposing similarity scores now builds the
-    //    intuition you'll need for Phase 2's confidence threshold ("below
-    //    what score do results stop being relevant?").
+    const usage = sumUsage(rerankUsage, answerUsage);
+    const meta = logQuery({
+      question,
+      role,
+      rerank,
+      escalated: false,
+      started,
+      topScore: maxSimilarity,
+      usage,
+    });
+
     res.json({
       answer,
-      sources: rows.map((r, i) => ({
+      sources: chunks.map((r, i) => ({
         ref: i + 1, // matches the [n] citations in the answer text
         articleId: r.articleId,
         articleTitle: r.articleTitle,
         category: r.category,
         source: r.source,
         chunkIndex: r.chunkIndex,
-        similarity: Number(r.similarity.toFixed(4)),
+        similarity: round4(r.similarity),
         // Preview only — the full chunk is often 700 chars of context the
         // user doesn't need to read to trust the citation.
         excerpt: r.content.length > 300 ? r.content.slice(0, 300) + "…" : r.content,
       })),
+      // Phase 4 per-query telemetry, surfaced to the UI too.
+      meta,
     });
   } catch (err) {
     console.error("Chat failed:", err);
-    res.status(500).json({ error: err.message ?? "Chat failed" });
+    // Don't leak the provider's raw error blob to the UI. Map the common,
+    // expected failure (Gemini free-tier rate/quota limit) to a clean 429 with
+    // a human message; everything else is a generic 500.
+    if (isRateLimited(err)) {
+      return res.status(429).json({
+        error:
+          "The AI service is rate-limited right now (Gemini free-tier quota reached). Please wait a minute and try again.",
+      });
+    }
+    res.status(500).json({ error: "Something went wrong answering that. Please try again." });
   }
 });
+
+// Gemini's SDK throws with status 429 and a RESOURCE_EXHAUSTED / quota message
+// for both the per-minute and per-day free-tier caps.
+function isRateLimited(err) {
+  if (err?.status === 429) return true;
+  const msg = String(err?.message ?? "");
+  return /\b429\b|RESOURCE_EXHAUSTED|quota|rate limit/i.test(msg);
+}
+
+function round4(n) {
+  return Number(Number(n).toFixed(4));
+}
+
+function sumUsage(a = {}, b = {}) {
+  return {
+    promptTokens: (a.promptTokens ?? 0) + (b.promptTokens ?? 0),
+    outputTokens: (a.outputTokens ?? 0) + (b.outputTokens ?? 0),
+    totalTokens: (a.totalTokens ?? 0) + (b.totalTokens ?? 0),
+  };
+}
+
+// Phase 4 logging: one line per query with latency, tokens, and a cost estimate.
+// Returns the same meta object so the route can echo it to the client.
+function logQuery({ question, role, rerank, escalated, started, topScore, usage }) {
+  const latencyMs = Date.now() - started;
+  const u = usage ?? { promptTokens: 0, outputTokens: 0, totalTokens: 0 };
+  const costUsd =
+    (u.promptTokens / 1e6) * PRICE_IN_PER_M + (u.outputTokens / 1e6) * PRICE_OUT_PER_M;
+  const meta = {
+    latencyMs,
+    rerank,
+    escalated,
+    topScore: topScore != null ? round4(topScore) : null,
+    tokens: u.totalTokens,
+    costUsd: Number(costUsd.toFixed(6)),
+  };
+  console.log(
+    `[chat] role=${role} rerank=${rerank} escalated=${escalated} ` +
+      `top=${meta.topScore} tokens=${meta.tokens} cost=$${meta.costUsd} ` +
+      `latency=${latencyMs}ms q=${JSON.stringify(question.slice(0, 60))}`
+  );
+  return meta;
+}
 
 export default router;

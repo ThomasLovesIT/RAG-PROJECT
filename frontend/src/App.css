@@ -108,6 +108,7 @@ body {
 .message.user .bubble { background: #1c1917; color: #fff; }
 .message.assistant .bubble { background: #fff; border: 1px solid #e7e5e4; }
 
+.meta { margin-top: 4px; font-size: 11px; color: #a8a29e; }
 .sources { margin-top: 6px; font-size: 13px; }
 .sources summary { cursor: pointer; color: #78716c; }
 .source {

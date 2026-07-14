@@ -55,6 +55,15 @@ model Chunk {
   // 2000 dims — a 3072-dim column could never be indexed for fast search.
   embedding  Unsupported("vector(1536)")?
   chunkIndex Int
+  // Full-text search vector for Phase 2 hybrid search. GENERATED ALWAYS from
+  // `content` (see the add_fulltext_search migration), so it auto-populates for
+  // existing rows and stays in sync on every write — the app never sets it.
+  // Declared Unsupported so Prisma creates/tracks the column but leaves its
+  // GENERATED definition to the raw migration (same approach as `embedding`).
+  // WHY hybrid: vector search is great at meaning but blurs exact tokens —
+  // error codes, ticket numbers ("TICKET-4213"), product names. Full-text
+  // (tsvector) nails those literal matches; fusing both beats either alone.
+  contentTsv Unsupported("tsvector")?
 
   @@index([articleId])
 }

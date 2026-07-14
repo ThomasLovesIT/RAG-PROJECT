@@ -8,7 +8,9 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "db:migrate": "prisma migrate dev",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "eval:seed": "node eval/seed.js",
+    "eval": "node eval/run-eval.js"
   },
   "dependencies": {
     "@google/genai": "^1.9.0",
