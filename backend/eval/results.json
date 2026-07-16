@@ -1,0 +1,589 @@
+{
+  "generatedAt": "2026-07-15T17:17:21.824Z",
+  "fast": false,
+  "before": {
+    "label": "BEFORE re-rank",
+    "rerank": false,
+    "precisionAt3": 1,
+    "faithfulnessRate": 0.9583333333333334,
+    "keywordRecall": 0.9047619047619048,
+    "avgLatencyMs": 2387,
+    "n": 24,
+    "rows": [
+      {
+        "question": "How do I unlock a user's Active Directory account after too many failed logins?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 4164
+      },
+      {
+        "question": "What PowerShell command shows whether an account is locked out?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2130
+      },
+      {
+        "question": "After I unlock an account the badPwdCount keeps climbing, what does that mean?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": false,
+        "latencyMs": 2173
+      },
+      {
+        "question": "How many failed logins trigger a lockout and how long does it last?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2136
+      },
+      {
+        "question": "Account is locked again minutes after I unlock it — how do I find the source?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2136
+      },
+      {
+        "question": "user says password is correct but still gets incorrect password error",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2164
+      },
+      {
+        "question": "A user's VPN keeps disconnecting every 10 minutes, what should I check first?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2195
+      },
+      {
+        "question": "What MTU value should I set to fix VPN tunnel stalls?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2127
+      },
+      {
+        "question": "VPN connects but I can't reach internal sites",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2121
+      },
+      {
+        "question": "How do I test for packet fragmentation on the VPN?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 4004
+      },
+      {
+        "question": "Why does the VPN drop when I walk around the office with my laptop?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2145
+      },
+      {
+        "question": "netsh command to change VPN adapter MTU persistently",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2167
+      },
+      {
+        "question": "What's the escalation path for a P1 outage ticket?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2112
+      },
+      {
+        "question": "How quickly must the on-call engineer acknowledge a P1 page?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2181
+      },
+      {
+        "question": "What severity is a single user with a locked account?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2114
+      },
+      {
+        "question": "Who is authorized to approve emergency changes outside CAB during an incident?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2090
+      },
+      {
+        "question": "company-wide email outage severity and response target",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2186
+      },
+      {
+        "question": "What happens if the primary on-call doesn't answer the page?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2141
+      },
+      {
+        "question": "Outlook shows Disconnected and keeps asking for password after a password change, but webmail works",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 3949
+      },
+      {
+        "question": "How was ticket 4213 resolved?",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2143
+      },
+      {
+        "question": "Outlook keeps retrying an old password and causing account lockouts, what's the fix?",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2214
+      },
+      {
+        "question": "command to open Windows Credential Manager",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2133
+      },
+      {
+        "question": "Which cached credential entries did Outlook hold onto after the password change?",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2214
+      },
+      {
+        "question": "OWA works but desktop Outlook won't connect after resetting my password",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 2155
+      }
+    ]
+  },
+  "after": {
+    "label": "AFTER re-rank",
+    "rerank": true,
+    "precisionAt3": 1,
+    "faithfulnessRate": 1,
+    "keywordRecall": 0.9523809523809523,
+    "avgLatencyMs": 18493,
+    "n": 24,
+    "rows": [
+      {
+        "question": "How do I unlock a user's Active Directory account after too many failed logins?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17836
+      },
+      {
+        "question": "What PowerShell command shows whether an account is locked out?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18043
+      },
+      {
+        "question": "After I unlock an account the badPwdCount keeps climbing, what does that mean?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 19745
+      },
+      {
+        "question": "How many failed logins trigger a lockout and how long does it last?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18069
+      },
+      {
+        "question": "Account is locked again minutes after I unlock it — how do I find the source?",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17833
+      },
+      {
+        "question": "user says password is correct but still gets incorrect password error",
+        "expectedSource": "AD-Account-Lockout-Runbook",
+        "top3": [
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook",
+          "AD-Account-Lockout-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18039
+      },
+      {
+        "question": "A user's VPN keeps disconnecting every 10 minutes, what should I check first?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17700
+      },
+      {
+        "question": "What MTU value should I set to fix VPN tunnel stalls?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17760
+      },
+      {
+        "question": "VPN connects but I can't reach internal sites",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17963
+      },
+      {
+        "question": "How do I test for packet fragmentation on the VPN?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 19482
+      },
+      {
+        "question": "Why does the VPN drop when I walk around the office with my laptop?",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17709
+      },
+      {
+        "question": "netsh command to change VPN adapter MTU persistently",
+        "expectedSource": "VPN-Troubleshooting-FAQ",
+        "top3": [
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ",
+          "VPN-Troubleshooting-FAQ"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17683
+      },
+      {
+        "question": "What's the escalation path for a P1 outage ticket?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18253
+      },
+      {
+        "question": "How quickly must the on-call engineer acknowledge a P1 page?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18040
+      },
+      {
+        "question": "What severity is a single user with a locked account?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17891
+      },
+      {
+        "question": "Who is authorized to approve emergency changes outside CAB during an incident?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 17813
+      },
+      {
+        "question": "company-wide email outage severity and response target",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook",
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 20818
+      },
+      {
+        "question": "What happens if the primary on-call doesn't answer the page?",
+        "expectedSource": "Incident-Response-Runbook",
+        "top3": [
+          "Incident-Response-Runbook"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18488
+      },
+      {
+        "question": "Outlook shows Disconnected and keeps asking for password after a password change, but webmail works",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18565
+      },
+      {
+        "question": "How was ticket 4213 resolved?",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18809
+      },
+      {
+        "question": "Outlook keeps retrying an old password and causing account lockouts, what's the fix?",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18602
+      },
+      {
+        "question": "command to open Windows Credential Manager",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18482
+      },
+      {
+        "question": "Which cached credential entries did Outlook hold onto after the password change?",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 21416
+      },
+      {
+        "question": "OWA works but desktop Outlook won't connect after resetting my password",
+        "expectedSource": "TICKET-4213-Outlook-Stuck-Disconnected",
+        "top3": [
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected",
+          "TICKET-4213-Outlook-Stuck-Disconnected"
+        ],
+        "hit": true,
+        "faithful": true,
+        "latencyMs": 18800
+      }
+    ]
+  }
+}

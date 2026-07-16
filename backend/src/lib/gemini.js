@@ -6,7 +6,10 @@
 import { GoogleGenAI } from "@google/genai";
 
 const EMBEDDING_MODEL = "gemini-embedding-001";
-const CHAT_MODEL = "gemini-2.5-flash";
+// gemini-2.5-flash is retired for API projects created after mid-2026; new keys
+// must use a Gemini 3.x chat model. Embeddings stay on gemini-embedding-001 —
+// changing the embedding model would invalidate every stored chunk vector.
+const CHAT_MODEL = process.env.GEMINI_CHAT_MODEL || "gemini-3-flash-preview";
 
 // Must match the vector(1536) column in schema.prisma. If you ever change
 // one, you must change the other AND re-embed every stored chunk — embeddings

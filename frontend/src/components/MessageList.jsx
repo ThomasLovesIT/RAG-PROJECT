@@ -23,7 +23,6 @@ export default function MessageList({ messages, busy, onPick }) {
 
   return (
     <div className="messages" role="log" aria-live="polite">
-      <div className="msg-col">
         {messages.length === 0 && (
           <div className="empty-chat">
             <h2>
